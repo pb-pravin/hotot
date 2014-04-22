@@ -1,6 +1,6 @@
 ### Hotot
 
-A bunny wrapper, based on [this](http://blog.brianploetz.com/post/36886084370/producing-amqp-messages-from-ruby-on-rails-applications) blog.
+A [bunny](https://github.com/ruby-amqp/bunny) wrapper, based on [this](http://blog.brianploetz.com/post/36886084370/producing-amqp-messages-from-ruby-on-rails-applications) blog.
 
 #### Setup bunny connection
 
@@ -55,7 +55,7 @@ end
 
 #### Produce
 
-Sample message:
+sample message:
 ```Ruby
 class TestMessage < Hotot::Message::Base
   ROUTING_KEY = "hotot.message.test"
@@ -76,7 +76,7 @@ class TestMessage < Hotot::Message::Base
 end
 ```
 
-Sample producer
+sample producer:
 ```Ruby
 class TestProducer
   include Hotot::MessageProducer
@@ -88,7 +88,11 @@ class TestProducer
 end
 ```
 
-Produce
+producer publishes:
 ```Ruby
   TestProducer.new.publish "hello hotot!"
 ```
+
+### License
+
+Released under the MIT license.
