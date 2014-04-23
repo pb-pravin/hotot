@@ -1,10 +1,9 @@
 #!/Users/he9qi/.rbenv/shims/ruby
 # encoding: utf-8
 
-require 'json'
-require '../lib/hotot'
-require './test_message'
-require './test_producer'
+require_relative '../lib/hotot'
+require_relative 'test_message'
+require_relative 'test_producer'
 
 
 # load config file

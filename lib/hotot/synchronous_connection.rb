@@ -7,7 +7,7 @@ module Hotot
     extend Configurable
     extend ClassAttributeAccessors
 
-    cattr_reader :bunny, :exchange
+    cattr_reader :producer, :exchange, :consumer
 
     @@setup = false
     @@connected = false
@@ -22,7 +22,8 @@ module Hotot
         @@env_config.keys.each {|key| @@env_config[(key.to_sym rescue key) || key] = @@env_config.delete(key) }
         raise StandardError, "'exchange' key not found in config" if !@@env_config.has_key?(:exchange)
         
-        @@bunny = Bunny.new(@@env_config)
+        @@producer = Bunny.new(@@env_config)
+        @@consumer = Bunny.new(@@env_config)
         @@setup = true
       end
     end
@@ -33,7 +34,7 @@ module Hotot
     end
     
     def self.subscribe(routing_key, &block)
-      q = @@bunny.queue.bind(@@env_config[:exchange], :routing_key => routing_key)
+      q = @@consumer.queue.bind(@@env_config[:exchange], :routing_key => routing_key)
 
       q.subscribe do |delivery_info, metadata, payload|
         block.call delivery_info, metadata, payload
@@ -44,17 +45,19 @@ module Hotot
     # Establish a connection to the underlying exchange
     def self.connect
       raise StandardError, "AMQP not setup. Call setup before calling connect" if !self.setup?
-      @@bunny.start
+      @@producer.start
+      @@consumer.start
       
       # use defualt channel for exchange
-      @@exchange = @@bunny.exchange(@@env_config[:exchange], :type => :topic, :durable => true)
+      @@exchange = @@producer.exchange(@@env_config[:exchange], :type => :topic, :durable => true)
       @@connected = true
     end
 
     # Disconnect from the underlying exchange
     def self.disconnect
       begin
-        @@bunny.stop
+        @@producer.stop
+        @@consumer.stop
       rescue
         # if this is being called because the underlying connection went bad
         # calling stop will raise an error. that's ok....
@@ -67,7 +70,8 @@ module Hotot
     def self.reconnect
       self.disconnect
       @@setup = false
-      @@bunny = Bunny.new(@@env_config)
+      @@producer = Bunny.new(@@env_config)
+      @@consumer = Bunny.new(@@env_config)
       @@setup = true
       self.connect
     end

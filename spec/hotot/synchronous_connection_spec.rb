@@ -11,8 +11,6 @@ describe "Hotot::SynchronousConnection" do
   
   before do 
     @config_file = Pathname.new File.expand_path("../../fixtures/hotot.yml", __FILE__)
-    @bunny       = Minitest::Mock.new
-    @exchange    = Minitest::Mock.new
   end
   
   it "raise error if not setup yet" do
@@ -32,7 +30,8 @@ describe "Hotot::SynchronousConnection" do
     
     before do
       Hotot::SynchronousConnection.setup @config_file, 'test'
-      @bunny = Hotot::SynchronousConnection.bunny
+      @producer = Hotot::SynchronousConnection.producer
+      @consumer = Hotot::SynchronousConnection.consumer
     end
     
     after do
@@ -42,8 +41,8 @@ describe "Hotot::SynchronousConnection" do
     it "calls start and exchange" do
       Hotot::SynchronousConnection.connect
       Hotot::SynchronousConnection.connected?.must_equal true
-      assert_send [@bunny, :start]
-      assert_send [@bunny, :exchange, "heyook.topic", :type => :topic, :durable => true]
+      assert_send [@producer, :start]
+      assert_send [@producer, :exchange, "heyook.topic", :type => :topic, :durable => true]
     end
     
     describe "publish" do
@@ -64,10 +63,8 @@ describe "Hotot::SynchronousConnection" do
   describe "disconnect" do
     
     it "disconnects and set connected to false" do
-      Bunny.stub :new, @bunny do
-        Hotot::SynchronousConnection.disconnect
-        Hotot::SynchronousConnection.connected?.must_equal false
-      end    
+      Hotot::SynchronousConnection.disconnect
+      Hotot::SynchronousConnection.connected?.must_equal false  
     end
     
   end
