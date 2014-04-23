@@ -1,6 +1,14 @@
 ### Hotot
 
-A [bunny](https://github.com/ruby-amqp/bunny) wrapper, based on [this](http://blog.brianploetz.com/post/36886084370/producing-amqp-messages-from-ruby-on-rails-applications) blog.
+A [bunny](https://github.com/ruby-amqp/bunny)'s [topic exchange](http://www.rabbitmq.com/tutorials/tutorial-five-python.html) wrapper, based on [this](http://blog.brianploetz.com/post/36886084370/producing-amqp-messages-from-ruby-on-rails-applications) blog.
+
+#### Topic exchange
+
+- Topic exchange is powerful and can behave like other exchanges.
+- When a queue is bound with "#" (hash) binding key - it will receive all the messages, regardless of the routing key - like in fanout exchange.
+- When special characters "*" (star) and "#" (hash) aren't used in bindings, the topic exchange will behave just like a direct one.
+
+---
 
 #### Setup bunny connection
 
