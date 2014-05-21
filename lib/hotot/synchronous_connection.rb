@@ -43,7 +43,7 @@ module Hotot
     end
 
     # Establish a connection to the underlying exchange
-    def self.connect(exchange_type = :direct)
+    def self.connect(exchange_type = :topic)
       raise StandardError, "AMQP not setup. Call setup before calling connect" if !self.setup?
       @@producer.start
       @@consumer.start
