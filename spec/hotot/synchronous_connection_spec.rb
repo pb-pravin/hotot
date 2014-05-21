@@ -32,6 +32,7 @@ describe "Hotot::SynchronousConnection" do
       Hotot::SynchronousConnection.setup @config_file, 'test'
       @producer = Hotot::SynchronousConnection.producer
       @consumer = Hotot::SynchronousConnection.consumer
+      Hotot::SynchronousConnection.connect
     end
     
     after do
@@ -39,16 +40,14 @@ describe "Hotot::SynchronousConnection" do
     end
     
     it "calls start and exchange" do
-      Hotot::SynchronousConnection.connect
       Hotot::SynchronousConnection.connected?.must_equal true
       assert_send [@producer, :start]
-      assert_send [@producer, :exchange, "heyook.topic", :type => :topic, :durable => true]
+      assert_send [@producer, :exchange, "heyook.direct", :type => :direct, :durable => true]
     end
     
     describe "publish" do
       
       it "let exchange to publish" do
-        Hotot::SynchronousConnection.connect
         @exchange = Hotot::SynchronousConnection.exchange
         
         message = TestMessage.new
