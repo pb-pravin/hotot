@@ -4,7 +4,7 @@ defaults: &defaults
   host: localhost
   port: 5672
   vhost: "/"
-  exchange: "heyook.topic"
+  exchange: "heyook.direct"
   user: guest
   pass: guest
 

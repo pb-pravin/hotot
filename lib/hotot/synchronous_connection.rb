@@ -43,13 +43,13 @@ module Hotot
     end
 
     # Establish a connection to the underlying exchange
-    def self.connect
+    def self.connect(exchange_type = :direct)
       raise StandardError, "AMQP not setup. Call setup before calling connect" if !self.setup?
       @@producer.start
       @@consumer.start
       
       # use defualt channel for exchange
-      @@exchange = @@producer.exchange(@@env_config[:exchange], :type => :topic, :durable => true)
+      @@exchange = @@producer.exchange(@@env_config[:exchange], :type => exchange_type, :durable => true)
       @@connected = true
     end
 
