@@ -85,25 +85,39 @@ module Hotot
     def self.produce(message)
       if !self.setup? || !self.connected?
         Hotot.logger.error "AMQP not setup or connected. Call setup and connect before calling produce"
-      else
-        begin
-          @@exchange.publish(message.to_json, :routing_key => message.routing_key, :mandatory => false, :immediate => false, :persistent => true, :content_type => "application/json")
-        rescue Bunny::ServerDownError
-          # the connection went south, try to reconnect and try one more time
-          begin
-            self.reconnect
-            @@exchange.publish(message.to_json, :routing_key => message.routing_key, :mandatory => false, :immediate => false, :persistent => true, :content_type => "application/json")
-          rescue => err
-            Hotot.logger.error "Unexpected error producing AMQP messsage: (#{message.to_json})"
-            Hotot.logger.error "#{err.message}"
-            Hotot.logger.error err.backtrace.join("\n")
-          end
-        rescue => err
-          Hotot.logger.error "Unexpected error producing AMQP messsage: (#{message.to_json})"
-          Hotot.logger.error "#{err.message}"
-          Hotot.logger.error err.backtrace.join("\n")
-        end
+        return
       end
+      
+      begin
+        @@exchange.publish(message.to_json, message_payload(message))
+      rescue Bunny::ServerDownError
+        # the connection went south, try to reconnect and try one more time
+        begin
+          self.reconnect
+          @@exchange.publish(message.to_json, message_payload(message))
+        rescue => err
+          log_produce_error err, message
+        end
+      rescue => err
+        log_produce_error err, message
+      end
+      
+    end
+    
+    def self.message_payload(message)
+      { 
+        routing_key: message.routing_key, 
+        mandatory: false, 
+        immediate: false, 
+        persistent: true, 
+        content_type: "application/json" 
+      }
+    end
+    
+    def self.log_produce_error(err, message)
+      Hotot.logger.error "Unexpected error producing AMQP messsage: (#{message.to_json})"
+      Hotot.logger.error "#{err.message}"
+      Hotot.logger.error err.backtrace.join("\n")
     end
     
   end #SynchronousConnection
